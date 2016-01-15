@@ -264,7 +264,7 @@ void createDeck(Joueur* planeswalker , int tailleDeck)
 					if (cartRand < 80)
 					{
 						coutConvertis = rand() % 7;
-						planeswalker->bibliotheque.bibliotheque[i] = (Carte*) new Creature{ Carte{ CoutMana{ typeMana::Blanc, coutConvertis }, "Angel", false }, coutConvertis / 3, (int)(coutConvertis * 1.5) };
+						planeswalker->bibliotheque.bibliotheque[i] = (Carte*) new Creature{ Carte{ CoutMana{ typeMana::Blanc, coutConvertis }, "Angel", false }, coutConvertis / 3, (int)(coutConvertis * 1.5) + 1 };
 					}
 					else
 					{
@@ -292,7 +292,7 @@ void createDeck(Joueur* planeswalker , int tailleDeck)
 					if (cartRand < 70)
 					{
 						coutConvertis = rand() % 6;
-						planeswalker->bibliotheque.bibliotheque[i] = (Carte*) new Creature{ Carte{ CoutMana{ typeMana::Noir, coutConvertis }, "Zombie", false }, coutConvertis, coutConvertis };
+						planeswalker->bibliotheque.bibliotheque[i] = (Carte*) new Creature{ Carte{ CoutMana{ typeMana::Noir, coutConvertis }, "Zombie", false }, coutConvertis, coutConvertis + 1 };
 					}
 					else
 					{
@@ -413,11 +413,11 @@ void playCardFromHand(Joueur* actif, Joueur* passif, Battlefield* battle, int ta
 					{
 						if ((turnP1 && !reaction) || (!turnP1 && reaction))
 						{
-							if (battle->bfP1[i] != nullptr)
+							if (battle->bfP1[i] == nullptr)
 							{
 								if (actif->hand.hand[toSelec[selection]]->name == "Plain" || actif->hand.hand[toSelec[selection]]->name == "Swamp" || actif->hand.hand[toSelec[selection]]->name == "Mountain")
 								{
-									if (actif->nbLandPlayedThisTurn == 0)
+									if (actif->nbLandPlayedThisTurn == 0 && !reaction)
 									{
 										battle->bfP1[i] = actif->hand.hand[toSelec[selection]];
 										actif->hand.hand[toSelec[selection]] = nullptr;
@@ -433,16 +433,16 @@ void playCardFromHand(Joueur* actif, Joueur* passif, Battlefield* battle, int ta
 										actif->hand.hand[toSelec[selection]] = nullptr;
 									}
 								}
+								break;
 							}
-							break;
 						}
 						else
 						{
-							if (battle->bfP2[i] != nullptr)
+							if (battle->bfP2[i] == nullptr)
 							{
 								if (actif->hand.hand[toSelec[selection]]->name == "Plain" || actif->hand.hand[toSelec[selection]]->name == "Swamp" || actif->hand.hand[toSelec[selection]]->name == "Mountain")
 								{
-									if (actif->nbLandPlayedThisTurn == 0)
+									if (actif->nbLandPlayedThisTurn == 0 && !reaction)
 									{
 										battle->bfP2[i] = actif->hand.hand[toSelec[selection]];
 										actif->hand.hand[toSelec[selection]] = nullptr;
@@ -458,8 +458,8 @@ void playCardFromHand(Joueur* actif, Joueur* passif, Battlefield* battle, int ta
 										actif->hand.hand[toSelec[selection]] = nullptr;
 									}
 								}
+								break;
 							}
-							break;
 						}
 					}
 				}
@@ -607,12 +607,13 @@ void displayBattlefield(Battlefield* battle, int tailleDeck)
 			cout << "Creature: " << battle->bfP1[i]->name;
 			if (battle->bfP1[i]->exhaust)
 			{
-				cout << " tapped" << endl;
+				cout << " tapped";
 			}
 			else
 			{
-				cout << " untapped" << endl;
+				cout << " untapped";
 			}
+			cout << ", Attack: " << ((Creature*)battle->bfP1[i])->attack << ", Defense: " << ((Creature*)battle->bfP1[i])->endurance << endl;
 		}
 	}
 	cout << "Planeswalker 2: Nb Land Untapped : " << nbLandDTP2 << " - Nb Land Tapped : " << nbLandTP2 << endl;
@@ -630,6 +631,7 @@ void displayBattlefield(Battlefield* battle, int tailleDeck)
 			{
 				cout << " untapped" << endl;
 			}
+			cout << ", Attack: " << ((Creature*)battle->bfP1[i])->attack << ", Defense: " << ((Creature*)battle->bfP1[i])->endurance << endl;
 		}
 	}
 	cout << endl;
@@ -747,6 +749,8 @@ void MTG()
 			endStep(&p1, &battle, tailleDeck, turnP1);
 		else
 			endStep(&p2, &battle, tailleDeck, turnP1);
+
+		turnP1 = !turnP1;
 
 	}
 }
